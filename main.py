@@ -9,7 +9,7 @@ from email.header import Header
 STORE_ID = "aoga101903-22"
 
 
-def load_posts(file_path: str = "posts.json") -> list[dict]:
+def load_json(file_path: str) -> list[dict]:
     with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -19,7 +19,7 @@ def build_amazon_url(title: str) -> str:
     return f"https://www.amazon.co.jp/s?k={encoded_title}&tag={STORE_ID}"
 
 
-def build_final_text(post: dict) -> str:
+def build_post_text(post: dict) -> str:
     title = post["title"]
     text = post["text"].strip()
     amazon_url = build_amazon_url(title)
@@ -45,17 +45,32 @@ def send_email(subject: str, body: str) -> None:
 
 
 def main() -> None:
-    posts = load_posts()
-    if not posts:
-        raise ValueError("posts.json が空です。")
+    books = load_json("books.json")
+    toys = load_json("toys.json")
 
-    post = random.choice(posts)
-    final_text = build_final_text(post)
+    if not books:
+        raise ValueError("books.json が空です。")
+    if not toys:
+        raise ValueError("toys.json が空です。")
 
-    print(final_text)
+    book_post = random.choice(books)
+    toy_post = random.choice(toys)
 
-    subject = f"今日のThreads投稿 | {post['title']}"
-    send_email(subject, final_text)
+    book_text = build_post_text(book_post)
+    toy_text = build_post_text(toy_post)
+
+    final_body = (
+        f"【今日の本】\n"
+        f"{book_text}\n\n"
+        f"--------------------\n\n"
+        f"【今日のおもちゃ】\n"
+        f"{toy_text}"
+    )
+
+    print(final_body)
+
+    subject = f"今日のThreads投稿 | 本: {book_post['title']} / おもちゃ: {toy_post['title']}"
+    send_email(subject, final_body)
 
 
 if __name__ == "__main__":
