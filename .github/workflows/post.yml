@@ -2,7 +2,7 @@ name: auto post
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 日本時間9時
+    - cron: '0 0 * * *'  # JST 9:00
   workflow_dispatch:
 
 jobs:
@@ -18,3 +18,4 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          BITLY_TOKEN: ${{ secrets.BITLY_TOKEN }}
