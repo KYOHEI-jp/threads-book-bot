@@ -15,5 +15,6 @@ jobs:
       - name: run
         run: python main.py
         env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
