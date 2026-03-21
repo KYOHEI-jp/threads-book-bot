@@ -6,7 +6,6 @@ import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
 
-
 STORE_ID = "aoga101903-22"
 
 
