@@ -15,8 +15,10 @@ import json
 import os
 import random
 import urllib.parse
-from datetime import date
+from datetime import date, timezone, timedelta
 from typing import Optional
+
+JST = timezone(timedelta(hours=9))
 
 STORE_ID = "aoga101903-22"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -373,7 +375,7 @@ def main() -> None:
     if not toys:
         raise ValueError("toys.json が空です。")
 
-    today = date.today()
+    today = date.today(tz=JST)  # GitHub Actions (UTC) でも JST 日付を使う
     random.seed(today.toordinal())  # 同日は常に同じ組み合わせを選ぶ
 
     book = random.choice(books)
