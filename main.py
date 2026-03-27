@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 STORE_ID = "aoga101903-22"
+RAKUTEN_AFFILIATE_ID = "524c75b6.f0c681ff.524c75b7.a179a690"
 
 
 def load_json(file_path: str) -> list[dict]:
@@ -21,10 +22,25 @@ def build_amazon_url(post: dict) -> str:
     return f"https://www.amazon.co.jp/s?k={encoded_title}&tag={STORE_ID}"
 
 
+def build_rakuten_url(post: dict) -> str:
+    keyword = urllib.parse.quote(post.get("title", ""))
+    search_url = urllib.parse.quote(f"https://search.rakuten.co.jp/search/mall/{keyword}/", safe="")
+    return f"https://hb.afl.rakuten.co.jp/ichiba/{RAKUTEN_AFFILIATE_ID}/?pc={search_url}&link_type=hybrid_url"
+
+
 def build_post_text(post: dict) -> str:
     text = post.get("text", "").strip()
     amazon_url = build_amazon_url(post)
-    return f"{text}\n\n{amazon_url}" if text else amazon_url
+    rakuten_url = build_rakuten_url(post)
+    link_block = (
+        f"※リンクはアフィリエイトを含みます\n"
+        f"Amazon：{amazon_url}\n"
+        f"楽天：{rakuten_url}"
+    )
+    # textに既存の※注記が含まれる場合は除去して差し替える
+    if "※" in text:
+        text = text[:text.index("※")].strip()
+    return f"{text}\n\n{link_block}" if text else link_block
 
 
 def send_email(subject: str, body: str) -> None:
