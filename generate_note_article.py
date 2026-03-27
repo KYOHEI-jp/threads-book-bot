@@ -15,10 +15,14 @@ import json
 import os
 import random
 import urllib.parse
-from datetime import date, timezone, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 JST = timezone(timedelta(hours=9))
+
+
+def today_jst():
+    return datetime.now(tz=JST).date()
 
 STORE_ID = "aoga101903-22"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -333,7 +337,7 @@ def build_summary() -> str:
 # 記事全体
 # ======================================================
 
-def build_article(book: dict, toy: dict, fidget: Optional[dict], today: date) -> str:
+def build_article(book: dict, toy: dict, fidget: Optional[dict], today) -> str:
     book_title = book.get("title") or book.get("asin", "")
     title = pick(TITLES).format(book=book_title)
 
@@ -375,7 +379,7 @@ def main() -> None:
     if not toys:
         raise ValueError("toys.json が空です。")
 
-    today = date.today(tz=JST)  # GitHub Actions (UTC) でも JST 日付を使う
+    today = today_jst()  # GitHub Actions (UTC) でも JST 日付を使う
     random.seed(today.toordinal())  # 同日は常に同じ組み合わせを選ぶ
 
     book = random.choice(books)
