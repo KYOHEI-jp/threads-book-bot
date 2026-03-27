@@ -44,9 +44,16 @@ def send_email(subject: str, body: str) -> None:
         smtp.sendmail(email_user, [email_to], msg.as_string())
 
 
+def load_json_optional(file_path: str) -> list[dict]:
+    if not os.path.exists(file_path):
+        return []
+    return load_json(file_path)
+
+
 def main() -> None:
     books = load_json("books.json")
     toys = load_json("toys.json")
+    fidgets = load_json_optional("fidgets.json")
 
     if not books:
         raise ValueError("books.json が空です。")
@@ -67,9 +74,21 @@ def main() -> None:
         f"{toy_text}"
     )
 
+    subject_parts = f"本: {book_post['title']} / おもちゃ: {toy_post['title']}"
+
+    if fidgets:
+        fidget_post = random.choice(fidgets)
+        fidget_text = build_post_text(fidget_post)
+        final_body += (
+            f"\n\n--------------------\n\n"
+            f"【今日のフィジェット】\n"
+            f"{fidget_text}"
+        )
+        subject_parts += f" / フィジェット: {fidget_post['title']}"
+
     print(final_body)
 
-    subject = f"今日のThreads投稿 | 本: {book_post['title']} / おもちゃ: {toy_post['title']}"
+    subject = f"今日のThreads投稿 | {subject_parts}"
     send_email(subject, final_body)
 
 
