@@ -35,3 +35,25 @@ python generate_product.py
 ```
 
 入力後にテキストのプレビューが表示され、`y` を入力すると該当のJSONファイルに追記されます。
+
+## note 記事の自動生成
+
+`generate_note_article.py` を実行すると、`books.json` / `toys.json` / `fidgets.json` から1件ずつピックアップし、note 投稿用の Markdown 記事を `articles/YYYY-MM-DD.md` に保存します。
+
+```bash
+python generate_note_article.py
+# → articles/2026-03-28.md を生成
+```
+
+同日に複数回実行しても同じ商品の組み合わせが選ばれます（日付を乱数シードに使用）。
+
+### GitHub Actions による自動生成
+
+`.github/workflows/generate_article.yml` により、毎日 **JST 7:00** に自動実行され、生成された記事がリポジトリに自動コミット・プッシュされます。
+
+| ワークフロー | スケジュール | 処理 |
+|---|---|---|
+| `generate_article.yml` | 毎日 JST 7:00 | 記事生成 → `articles/` にコミット |
+| `post.yml` | 毎日 JST 9:00 | メール送信 |
+
+手動実行は GitHub の Actions タブ → `Generate Note Article` → `Run workflow` から行えます。

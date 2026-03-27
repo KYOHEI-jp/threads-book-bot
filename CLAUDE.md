@@ -17,6 +17,9 @@ python main.py
 # 商品JSONを対話形式で生成・追加
 python generate_product.py
 
+# note 用 Markdown 記事を articles/YYYY-MM-DD.md に生成
+python generate_note_article.py
+
 # 300件の投稿バリエーションを posts.json に生成
 python generate_posts.py
 ```
@@ -28,13 +31,18 @@ python generate_posts.py
 ## Architecture
 
 ```
-main.py            # エントリーポイント：books.json と toys.json から1件ずつランダム選択 → メール送信
-generate_posts.py  # 書籍30冊 × テンプレートで300件の posts.json を生成（main.py では未使用）
-generate_product.py # 商品メタデータを対話入力 → books.json / toys.json / fidgets.json に追記
+main.py                  # エントリーポイント：books/toys/fidgets から1件ずつ選択 → メール送信
+generate_note_article.py # books/toys/fidgets から1件ずつ選択 → articles/YYYY-MM-DD.md を生成
+generate_product.py      # 商品メタデータを対話入力 → books.json / toys.json / fidgets.json に追記
+generate_posts.py        # 書籍30冊 × テンプレートで300件の posts.json を生成（main.py では未使用）
 
 books.json         # 書籍アフィリエイト投稿データ（title + text）
 toys.json          # おもちゃ・ガジェット投稿データ（title + text）
 fidgets.json       # フィジェット専用投稿データ（title + text）※初期状態は空配列
+articles/          # 自動生成された note 用 Markdown 記事（YYYY-MM-DD.md）
+
+.github/workflows/post.yml             # JST 9:00 メール送信
+.github/workflows/generate_article.yml # JST 7:00 記事生成・自動コミット
 ```
 
 ### JSON フォーマット
