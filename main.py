@@ -70,31 +70,39 @@ def load_json_optional(file_path: str) -> list[dict]:
 def main() -> None:
     books = load_json("books.json")
     toys = load_json("toys.json")
+    gadgets = load_json("gadgets.json")
     fidgets = load_json_optional("fidgets.json")
 
     if not books:
         raise ValueError("books.json が空です。")
     if not toys:
         raise ValueError("toys.json が空です。")
+    if not gadgets:
+        raise ValueError("gadgets.json が空です。")
 
     book_post = random.choice(books)
     toy_post = random.choice(toys)
+    gadget_post = random.choice(gadgets)
 
     book_text = build_post_text(book_post)
     toy_text = build_post_text(toy_post)
+    gadget_text = build_post_text(gadget_post)
 
     final_body = (
         f"【今日の本】\n"
         f"{book_text}\n\n"
         f"--------------------\n\n"
         f"【今日のおもちゃ】\n"
-        f"{toy_text}"
+        f"{toy_text}\n\n"
+        f"--------------------\n\n"
+        f"【今日のガジェット】\n"
+        f"{gadget_text}"
     )
 
     def display_name(post: dict) -> str:
         return post.get("title") or post.get("asin", "（不明）")
 
-    subject_parts = f"本: {display_name(book_post)} / おもちゃ: {display_name(toy_post)}"
+    subject_parts = f"本: {display_name(book_post)} / おもちゃ: {display_name(toy_post)} / ガジェット: {display_name(gadget_post)}"
 
     if fidgets:
         fidget_post = random.choice(fidgets)
