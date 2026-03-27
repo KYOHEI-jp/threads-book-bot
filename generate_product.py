@@ -5,6 +5,17 @@
 import json
 import random
 import os
+import urllib.parse
+
+STORE_ID = "aoga101903-22"
+
+
+def build_affiliate_url(asin: str) -> str:
+    return f"https://www.amazon.co.jp/dp/{asin}?tag={STORE_ID}"
+
+
+def build_search_url(title: str) -> str:
+    return f"https://www.amazon.co.jp/s?k={urllib.parse.quote(title)}&tag={STORE_ID}"
 
 # ---- 書籍用テンプレート ----
 
@@ -184,21 +195,16 @@ def prompt(label: str, required: bool = True) -> str:
         print("  ※ 必須項目です。入力してください。")
 
 
-def add_book(output_path: str) -> None:
-    print("\n--- 書籍情報を入力してください ---")
-    title = prompt("タイトル（例: 嫌われる勇気）")
-    theme = prompt("テーマ（例: 人間関係、習慣、お金）")
-    hook  = prompt("対象読者の悩み（例: 人にどう思われるかで疲れてる）")
-    core  = prompt("本の核心メッセージ（例: 他人の評価を生きる軸にしない）")
-
-    text = generate_book_text(title, theme, hook, core)
-    entry = {"title": title, "text": text}
-
-    print("\n--- 生成されたテキスト ---")
-    print(text)
+def _preview_and_save(entry: dict, affiliate_url: str, output_path: str) -> None:
+    print("\n--- プレビュー ---")
+    if entry.get("text"):
+        print(entry["text"])
+        print()
+    print(f"アフィリエイトURL: {affiliate_url}")
     print("-" * 30)
 
-    confirm = input("\nこの内容で books.json に追記しますか？ [y/N]: ").strip().lower()
+    filename = os.path.basename(output_path)
+    confirm = input(f"\nこの内容で {filename} に追記しますか？ [y/N]: ").strip().lower()
     if confirm != "y":
         print("キャンセルしました。")
         return
@@ -207,55 +213,77 @@ def add_book(output_path: str) -> None:
     data.append(entry)
     save_json(output_path, data)
     print(f"追記しました → {output_path}（計 {len(data)} 件）")
+
+
+def add_book(output_path: str) -> None:
+    print("\n--- 書籍情報を入力してください ---")
+    asin  = prompt("ASIN（例: B09XYZ1234、省略可）", required=False)
+    title = prompt("タイトル（省略可）" if asin else "タイトル（例: 嫌われる勇気）", required=not asin)
+
+    url_only = asin and not title
+    text = ""
+
+    if not url_only:
+        required = not asin
+        theme = prompt("テーマ（例: 人間関係、習慣、お金）" + ("、省略可" if asin else ""), required=required)
+        hook  = prompt("対象読者の悩み（例: 人にどう思われるかで疲れてる）" + ("、省略可" if asin else ""), required=required)
+        core  = prompt("本の核心メッセージ（例: 他人の評価を生きる軸にしない）" + ("、省略可" if asin else ""), required=required)
+        if title and theme and hook and core:
+            text = generate_book_text(title, theme, hook, core)
+
+    entry = {"title": title, "text": text}
+    if asin:
+        entry["asin"] = asin
+
+    affiliate_url = build_affiliate_url(asin) if asin else build_search_url(title)
+    _preview_and_save(entry, affiliate_url, output_path)
 
 
 def add_toy(output_path: str) -> None:
     print("\n--- おもちゃ・ガジェット情報を入力してください ---")
-    title   = prompt("タイトル（例: フィジェットキューブ）")
-    feature = prompt("特徴・説明（例: 触るだけなのに妙に落ち着く）")
-    target  = prompt("対象ユーザー（例: 手が暇でついスマホ触る人）")
+    asin    = prompt("ASIN（例: B09XYZ1234、省略可）", required=False)
+    title   = prompt("タイトル（省略可）" if asin else "タイトル（例: フィジェットキューブ）", required=not asin)
 
-    text = generate_toy_text(title, feature, target)
+    url_only = asin and not title
+    text = ""
+
+    if not url_only:
+        required = not asin
+        feature = prompt("特徴・説明（例: 触るだけなのに妙に落ち着く）" + ("、省略可" if asin else ""), required=required)
+        target  = prompt("対象ユーザー（例: 手が暇でついスマホ触る人）" + ("、省略可" if asin else ""), required=required)
+        if title and feature and target:
+            text = generate_toy_text(title, feature, target)
+
     entry = {"title": title, "text": text}
+    if asin:
+        entry["asin"] = asin
 
-    print("\n--- 生成されたテキスト ---")
-    print(text)
-    print("-" * 30)
-
-    confirm = input("\nこの内容で toys.json に追記しますか？ [y/N]: ").strip().lower()
-    if confirm != "y":
-        print("キャンセルしました。")
-        return
-
-    data = load_json(output_path)
-    data.append(entry)
-    save_json(output_path, data)
-    print(f"追記しました → {output_path}（計 {len(data)} 件）")
+    affiliate_url = build_affiliate_url(asin) if asin else build_search_url(title)
+    _preview_and_save(entry, affiliate_url, output_path)
 
 
 def add_fidget(output_path: str) -> None:
     print("\n--- フィジェット情報を入力してください ---")
-    title     = prompt("タイトル（例: マグネットフィジェットボール）")
-    sensation = prompt("触り心地・動作（例: 磁石でカチッと止まる）")
-    target    = prompt("対象ユーザー（例: 手遊びしながら考えたい人）")
-    placement = prompt("置き場所・携帯性（例: デスクワーク向け、省略可）", required=False)
+    asin      = prompt("ASIN（例: B09XYZ1234、省略可）", required=False)
+    title     = prompt("タイトル（省略可）" if asin else "タイトル（例: マグネットフィジェットボール）", required=not asin)
 
-    text = generate_fidget_text(title, sensation, target, placement)
+    url_only = asin and not title
+    text = ""
+
+    if not url_only:
+        required = not asin
+        sensation = prompt("触り心地・動作（例: 磁石でカチッと止まる）" + ("、省略可" if asin else ""), required=required)
+        target    = prompt("対象ユーザー（例: 手遊びしながら考えたい人）" + ("、省略可" if asin else ""), required=required)
+        placement = prompt("置き場所・携帯性（例: デスクワーク向け、省略可）", required=False)
+        if title and sensation and target:
+            text = generate_fidget_text(title, sensation, target, placement)
+
     entry = {"title": title, "text": text}
+    if asin:
+        entry["asin"] = asin
 
-    print("\n--- 生成されたテキスト ---")
-    print(text)
-    print("-" * 30)
-
-    confirm = input("\nこの内容で fidgets.json に追記しますか？ [y/N]: ").strip().lower()
-    if confirm != "y":
-        print("キャンセルしました。")
-        return
-
-    data = load_json(output_path)
-    data.append(entry)
-    save_json(output_path, data)
-    print(f"追記しました → {output_path}（計 {len(data)} 件）")
+    affiliate_url = build_affiliate_url(asin) if asin else build_search_url(title)
+    _preview_and_save(entry, affiliate_url, output_path)
 
 
 def main() -> None:

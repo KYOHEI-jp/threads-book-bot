@@ -14,16 +14,17 @@ def load_json(file_path: str) -> list[dict]:
         return json.load(f)
 
 
-def build_amazon_url(title: str) -> str:
-    encoded_title = urllib.parse.quote(title)
+def build_amazon_url(post: dict) -> str:
+    if post.get("asin"):
+        return f"https://www.amazon.co.jp/dp/{post['asin']}?tag={STORE_ID}"
+    encoded_title = urllib.parse.quote(post["title"])
     return f"https://www.amazon.co.jp/s?k={encoded_title}&tag={STORE_ID}"
 
 
 def build_post_text(post: dict) -> str:
-    title = post["title"]
-    text = post["text"].strip()
-    amazon_url = build_amazon_url(title)
-    return f"{text}\n\n{amazon_url}"
+    text = post.get("text", "").strip()
+    amazon_url = build_amazon_url(post)
+    return f"{text}\n\n{amazon_url}" if text else amazon_url
 
 
 def send_email(subject: str, body: str) -> None:
@@ -74,7 +75,10 @@ def main() -> None:
         f"{toy_text}"
     )
 
-    subject_parts = f"本: {book_post['title']} / おもちゃ: {toy_post['title']}"
+    def display_name(post: dict) -> str:
+        return post.get("title") or post.get("asin", "（不明）")
+
+    subject_parts = f"本: {display_name(book_post)} / おもちゃ: {display_name(toy_post)}"
 
     if fidgets:
         fidget_post = random.choice(fidgets)
@@ -84,7 +88,7 @@ def main() -> None:
             f"【今日のフィジェット】\n"
             f"{fidget_text}"
         )
-        subject_parts += f" / フィジェット: {fidget_post['title']}"
+        subject_parts += f" / フィジェット: {display_name(fidget_post)}"
 
     print(final_body)
 
