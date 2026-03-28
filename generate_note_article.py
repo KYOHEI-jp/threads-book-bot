@@ -380,7 +380,6 @@ def main() -> None:
         raise ValueError("toys.json が空です。")
 
     today = today_jst()  # GitHub Actions (UTC) でも JST 日付を使う
-    random.seed(today.toordinal())  # 同日は常に同じ組み合わせを選ぶ
 
     book = random.choice(books)
     toy = random.choice(toys)
