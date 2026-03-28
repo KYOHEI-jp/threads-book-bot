@@ -2,50 +2,40 @@
 
 ## 商品JSONの追加
 
-`generate_product.py` を使うと、`books.json` または `toys.json` に新しい商品を対話形式で追加できます。
+`generate_product.py` を使うと、各JSONファイルに新しい商品を対話形式で追加できます。
 
 ```bash
-python generate_product.py
+python3 generate_product.py
 ```
 
-### 書籍を追加する場合
+### カテゴリと対応ファイル
 
 ```
 カテゴリを選択してください:
   1. 書籍 → books.json
   2. おもちゃ・ガジェット → toys.json
-選択 [1/2]: 1
-
---- 書籍情報を入力してください ---
-  タイトル: 嫌われる勇気
-  テーマ: 人間関係
-  対象読者の悩み: 人にどう思われるかで疲れてる
-  本の核心メッセージ: 他人の評価を生きる軸にしない
-```
-
-### おもちゃ・ガジェットを追加する場合
-
-```
-選択 [1/2]: 2
-
---- おもちゃ・ガジェット情報を入力してください ---
-  タイトル: フィジェットキューブ
-  特徴・説明: 触るだけなのに妙に落ち着く
-  対象ユーザー: 手が暇でついスマホ触る人
+  3. フィジェット → fidgets.json
 ```
 
 入力後にテキストのプレビューが表示され、`y` を入力すると該当のJSONファイルに追記されます。
 
+## JSONファイル構成
+
+| ファイル | 内容 | 件数目安 |
+|---|---|---|
+| `books.json` | 書籍アフィリエイト投稿 | 100件 |
+| `toys.json` | おもちゃ投稿 | 任意 |
+| `gadgets.json` | ガジェット投稿 | 50件 |
+| `fidgets.json` | フィジェット投稿 | 100件 |
+
 ## note 記事の自動生成
 
-`generate_note_article.py` を実行すると、`books.json` / `toys.json` / `fidgets.json` から1件ずつピックアップし、note 投稿用の Markdown 記事を `articles/YYYY-MM-DD.md` に保存します。
+`generate_note_article.py` を実行すると、`books.json` / `toys.json` / `fidgets.json` から毎回ランダムに1件ずつピックアップし、note 投稿用の Markdown 記事を `articles/YYYY-MM-DD.md` に保存します。
 
 ```bash
-python generate_note_article.py
+python3 generate_note_article.py
 # → articles/2026-03-28.md を生成
 ```
-
-同日に複数回実行しても同じ商品の組み合わせが選ばれます（日付を乱数シードに使用）。
 
 ### GitHub Actions による自動生成
 
@@ -57,3 +47,13 @@ python generate_note_article.py
 | `post.yml` | 毎日 JST 9:00 | メール送信 |
 
 手動実行は GitHub の Actions タブ → `Generate Note Article` → `Run workflow` から行えます。
+
+## メール送信（main.py）
+
+`main.py` は `books.json` / `toys.json` / `gadgets.json` / `fidgets.json` からランダムに1件ずつ選び、Amazon・楽天のアフィリエイトリンク付きの投稿文をメールで送信します。
+
+```bash
+python3 main.py
+```
+
+環境変数（GitHub Secrets）に `EMAIL_USER` / `EMAIL_PASS` / `EMAIL_TO` が必要です。ローカルでは標準出力のみ確認できます。
