@@ -25,6 +25,13 @@ jobs:
       - name: Generate article
         run: python generate_note_article.py
 
+      - name: Send email
+        run: python main.py
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+
       - name: Debug — articles ディレクトリの内容
         run: |
           echo "=== ls articles/ ==="
